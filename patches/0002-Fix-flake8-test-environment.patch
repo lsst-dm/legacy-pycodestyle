@@ -1,0 +1,44 @@
+From fac287120f1672b06bc63065feed5f20a34f95f2 Mon Sep 17 00:00:00 2001
+From: Ian Stapleton Cordasco <graffatcolmingov@gmail.com>
+Date: Thu, 12 Apr 2018 16:56:03 -0500
+Subject: [PATCH 2/6] Fix flake8 test environment
+
+---
+ pycodestyle.py | 6 +++---
+ tox.ini        | 3 ++-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/pycodestyle.py b/pycodestyle.py
+index 1c8c5d2..b69ce33 100755
+--- a/pycodestyle.py
++++ b/pycodestyle.py
+@@ -1689,9 +1689,9 @@ def parse_udiff(diff, patterns=None, parent='.'):
+             if path[:2] in ('b/', 'w/', 'i/'):
+                 path = path[2:]
+             rv[path] = set()
+-    return dict([(os.path.join(parent, path), rows)
+-                 for (path, rows) in rv.items()
+-                 if rows and filename_match(path, patterns)])
++    return dict([(os.path.join(parent, filepath), rows)
++                 for (filepath, rows) in rv.items()
++                 if rows and filename_match(filepath, patterns)])
+ 
+ 
+ def normalize_paths(value, parent=os.curdir):
+diff --git a/tox.ini b/tox.ini
+index 797bbfa..41ba178 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -5,7 +5,8 @@
+ 
+ [tox]
+ envlist = py26, py27, py32, py33, py34, py35, py36, pypy, pypy3, jython
+-skip_missing_interpreters=True
++skipsdist = True
++skip_missing_interpreters = True
+ 
+ [testenv]
+ commands =
+-- 
+2.17.2 (Apple Git-113)
+

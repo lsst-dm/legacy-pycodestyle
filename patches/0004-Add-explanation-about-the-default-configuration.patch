@@ -1,0 +1,26 @@
+From 11ba4cc825e3753a5b662efe41942b6b3021d7e5 Mon Sep 17 00:00:00 2001
+From: Toshiki Hirao <hirao.toshiki.ho7@is.naist.jp>
+Date: Sun, 22 Apr 2018 16:00:41 -0400
+Subject: [PATCH 4/6] Add explanation about the default configuration
+
+Closes gh-685
+---
+ docs/intro.rst | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/docs/intro.rst b/docs/intro.rst
+index 80ef08f..70e7e81 100644
+--- a/docs/intro.rst
++++ b/docs/intro.rst
+@@ -426,6 +426,8 @@ This is the current list of error and warning codes:
+ **(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
+ **E133**, **E226**, **E241**, **E242**, **E704**, **W503** and **W504** are ignored
+ because they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.
++Please note that if the option **--ignore=errors** is used,
++the default configuration will be overridden and ignore only the check(s) you skip.
+ The check **W503** is mutually exclusive with check **W504**.
+ The check **E133** is mutually exclusive with check **E123**.  Use switch
+ ``--hang-closing`` to report **E133** instead of **E123**.
+-- 
+2.17.2 (Apple Git-113)
+
