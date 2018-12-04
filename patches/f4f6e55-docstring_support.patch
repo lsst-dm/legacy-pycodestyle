@@ -1,5 +1,57 @@
-Common subdirectories: pc/pycodestyle/docs and pycodestyle/docs
-diff -u -x .git pc/pycodestyle/pycodestyle.py pycodestyle/pycodestyle.py
+diff -r -u -x .git pc/pycodestyle/docs/intro.rst pycodestyle/docs/intro.rst
+--- pc/pycodestyle/docs/intro.rst	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/docs/intro.rst	2018-12-03 11:39:25.000000000 -0800
+@@ -157,6 +157,8 @@
+     --count              print total number of errors and warnings to standard
+                          error and set exit code to 1 if total is not null
+     --max-line-length=n  set maximum allowed line length (default: 79)
++    --max-doc-length=n   set maximum allowed doc line length and perform these
++                         checks (unchecked if not set)
+     --hang-closing       hang closing bracket instead of matching indentation of
+                          opening bracket's line
+     --format=format      set the error format [default|pylint|<custom>]
+@@ -169,9 +171,9 @@
+     Configuration:
+       The project options are read from the [pycodestyle] section of the
+       tox.ini file or the setup.cfg file located in any parent folder of the
+-      path(s) being processed.  Allowed options are: exclude, filename, select,
+-      ignore, max-line-length, hang-closing, count, format, quiet, show-pep8,
+-      show-source, statistics, verbose.
++      path(s) being processed.  Allowed options are: exclude, filename,
++      select, ignore, max-line-length, max-doc-length, hang-closing, count,
++      format, quiet, show-pep8, show-source, statistics, verbose.
+ 
+       --config=path      user config file location
+       (default: ~/.config/pycodestyle)
+@@ -406,6 +408,8 @@
+ +------------+----------------------------------------------------------------------+
+ | W504 (*)   | line break after binary operator                                     |
+ +------------+----------------------------------------------------------------------+
++| W505 (\*^) | doc line too long (82 > 79 characters)                               |
+++------------+----------------------------------------------------------------------+
+ +------------+----------------------------------------------------------------------+
+ | **W6**     | *Deprecation warning*                                                |
+ +------------+----------------------------------------------------------------------+
+@@ -423,12 +427,15 @@
+ +------------+----------------------------------------------------------------------+
+ 
+ 
+-**(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
+-**E133**, **E226**, **E241**, **E242**, **E704**, **W503** and **W504** are ignored
++**(*)** In the default configuration, the checks **E121**, **E123**, **E126**, **E133**,
++**E226**, **E241**, **E242**, **E704**, **W503**, **W504** and **W505** are ignored
+ because they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.
++Please note that if the option **--ignore=errors** is used,
++the default configuration will be overridden and ignore only the check(s) you skip.
+ The check **W503** is mutually exclusive with check **W504**.
+ The check **E133** is mutually exclusive with check **E123**.  Use switch
+-``--hang-closing`` to report **E133** instead of **E123**.
++``--hang-closing`` to report **E133** instead of **E123**. Use switch
++``--max-doc-length=n`` to report **W505**.
+ 
+ **(^)** These checks can be disabled at the line level using the ``# noqa``
+ special comment.  This possibility should be reserved for special cases.
+diff -r -u -x .git pc/pycodestyle/pycodestyle.py pycodestyle/pycodestyle.py
 --- pc/pycodestyle/pycodestyle.py	2018-12-03 20:41:32.000000000 -0800
 +++ pycodestyle/pycodestyle.py	2018-12-03 11:39:25.000000000 -0800
 @@ -1,5 +1,6 @@
@@ -741,4 +793,386 @@ diff -u -x .git pc/pycodestyle/pycodestyle.py pycodestyle/pycodestyle.py
      """
      if not parser:
          parser = get_parser()
-Common subdirectories: pc/pycodestyle/testsuite and pycodestyle/testsuite
+diff -r -u -x .git pc/pycodestyle/testsuite/E25.py pycodestyle/testsuite/E25.py
+--- pc/pycodestyle/testsuite/E25.py	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/testsuite/E25.py	2018-12-03 11:35:36.000000000 -0800
+@@ -45,3 +45,6 @@
+ #: E252:1:15 E252:1:16 E252:1:27 E252:1:36
+ def add(a: int=0, b: int =0, c: int= 0) -> int:
+     return a + b + c
++#: Okay
++def add(a: int = _default(name='f')):
++    return a
+diff -r -u -x .git pc/pycodestyle/testsuite/E26.py pycodestyle/testsuite/E26.py
+--- pc/pycodestyle/testsuite/E26.py	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/testsuite/E26.py	2018-12-03 11:35:36.000000000 -0800
+@@ -50,10 +50,10 @@
+     #foo not parsed
+     """
+ 
+-    ###########################################################################
+-    #                               A SEPARATOR                               #
+-    ###########################################################################
++    ####################################################################
++    #                            A SEPARATOR                           #
++    ####################################################################
+ 
+-    # ####################################################################### #
+-    # ########################## another separator ########################## #
+-    # ####################################################################### #
++    # ################################################################ #
++    # ####################### another separator ###################### #
++    # ################################################################ #
+diff -r -u -x .git pc/pycodestyle/testsuite/E50.py pycodestyle/testsuite/E50.py
+--- pc/pycodestyle/testsuite/E50.py	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/testsuite/E50.py	2018-12-03 11:35:36.000000000 -0800
+@@ -62,11 +62,11 @@
+ #: E501 E225 E226
+ very_long_identifiers=and_terrible_whitespace_habits(are_no_excuse+for_long_lines)
+ #
+-#: E501
++#: E501 W505
+ '''multiline string
+ with a long long long long long long long long long long long long long long long long line
+ '''
+-#: E501
++#: E501 W505
+ '''same thing, but this time without a terminal newline in the string
+ long long long long long long long long long long long long long long long long line'''
+ #
+@@ -74,15 +74,15 @@
+ #: Okay
+ """
+ I'm some great documentation.  Because I'm some great documentation, I'm
+-going to give you a reference to some valuable information about some API
+-that I'm calling:
++going to give you a reference to some valuable information about some
++API that I'm calling:
+ 
+     http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
+ """
+-#: E501
++#: E501 W505
+ """
+ longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaces"""
+-#: E501
++#: E501 W505
+ # Regression test for #622
+ def foo():
+     """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis pulvinar vitae
+@@ -92,19 +92,20 @@
+ This
+                                                                        almost_empty_line
+ """
+-#: E501
++#: E501 W505
+ """
+ This
+                                                                         almost_empty_line
+ """
+-#: E501
++#: E501 W505
+ # A basic comment
+ # with a long long long long long long long long long long long long long long long long line
+ 
+ #
+ #: Okay
+ # I'm some great comment.  Because I'm so great, I'm going to give you a
+-# reference to some valuable information about some API that I'm calling:
++# reference to some valuable information about some API that I'm
++# calling:
+ #
+ #     http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
+ 
+@@ -118,7 +119,7 @@
+ #                                                                      almost_empty_line
+ 
+ #
+-#: E501
++#: E501 W505
+ # This
+ #                                                                       almost_empty_line
+ 
+Only in pycodestyle/testsuite: __pycache__
+diff -r -u -x .git pc/pycodestyle/testsuite/support.py pycodestyle/testsuite/support.py
+--- pc/pycodestyle/testsuite/support.py	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/testsuite/support.py	2018-12-03 11:39:25.000000000 -0800
+@@ -151,11 +151,11 @@
+ 
+     A test file can provide many tests.  Each test starts with a
+     declaration.  This declaration is a single line starting with '#:'.
+-    It declares codes of expected failures, separated by spaces or 'Okay'
+-    if no failure is expected.
++    It declares codes of expected failures, separated by spaces or
++    'Okay' if no failure is expected.
+     If the file does not contain such declaration, it should pass all
+-    tests.  If the declaration is empty, following lines are not checked,
+-    until next declaration.
++    tests.  If the declaration is empty, following lines are not
++    checked, until next declaration.
+ 
+     Examples:
+ 
+diff -r -u -x .git pc/pycodestyle/testsuite/test_api.py pycodestyle/testsuite/test_api.py
+--- pc/pycodestyle/testsuite/test_api.py	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/testsuite/test_api.py	2018-12-03 11:39:25.000000000 -0800
+@@ -209,6 +209,12 @@
+         self.assertEqual(options.select, ('E24',))
+         self.assertEqual(options.ignore, ('',))
+ 
++        options = parse_argv('--max-doc-length=72').options
++        self.assertEqual(options.max_doc_length, 72)
++
++        options = parse_argv('').options
++        self.assertEqual(options.max_doc_length, None)
++
+         pep8style = pycodestyle.StyleGuide(paths=[E11])
+         self.assertFalse(pep8style.ignore_code('E112'))
+         self.assertFalse(pep8style.ignore_code('W191'))
+diff -r -u -x .git pc/pycodestyle/testsuite/test_blank_lines.py pycodestyle/testsuite/test_blank_lines.py
+--- pc/pycodestyle/testsuite/test_blank_lines.py	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/testsuite/test_blank_lines.py	2018-12-03 11:35:36.000000000 -0800
+@@ -35,8 +35,8 @@
+ 
+ class TestBlankLinesDefault(BlankLinesTestCase):
+     """
+-    Tests for default blank with 2 blank lines for top level and 1 blank line
+-    for methods.
++    Tests for default blank with 2 blank lines for top level and 1
++    blank line for methods.
+     """
+ 
+     def test_initial_no_blank(self):
+@@ -51,8 +51,8 @@
+ 
+     def test_initial_lines_one_blank(self):
+         """
+-        It will accept 1 blank lines before the first line of actual code,
+-        even if in other places it asks for 2
++        It will accept 1 blank lines before the first line of actual
++        code, even if in other places it asks for 2
+         """
+         result = self.check("""
+ def some_function():
+@@ -63,8 +63,8 @@
+ 
+     def test_initial_lines_two_blanks(self):
+         """
+-        It will accept 2 blank lines before the first line of actual code,
+-        as normal.
++        It will accept 2 blank lines before the first line of actual
++        code, as normal.
+         """
+         result = self.check("""
+ 
+@@ -76,8 +76,8 @@
+ 
+     def test_method_less_blank_lines(self):
+         """
+-        It will trigger an error when less than 1 blank lin is found before
+-        method definitions.
++        It will trigger an error when less than 1 blank lin is found
++        before method definitions.
+         """
+         result = self.check("""# First comment line.
+ class X:
+@@ -93,8 +93,8 @@
+ 
+     def test_method_less_blank_lines_comment(self):
+         """
+-        It will trigger an error when less than 1 blank lin is found before
+-        method definition, ignoring comments.
++        It will trigger an error when less than 1 blank lin is found
++        before method definition, ignoring comments.
+         """
+         result = self.check("""# First comment line.
+ class X:
+@@ -111,8 +111,8 @@
+ 
+     def test_top_level_fewer_blank_lines(self):
+         """
+-        It will trigger an error when less 2 blank lines are found before top
+-        level definitions.
++        It will trigger an error when less 2 blank lines are found
++        before top level definitions.
+         """
+         result = self.check("""# First comment line.
+ # Second line of comment.
+@@ -146,8 +146,8 @@
+ 
+     def test_top_level_more_blank_lines(self):
+         """
+-        It will trigger an error when more 2 blank lines are found before top
+-        level definitions.
++        It will trigger an error when more 2 blank lines are found
++        before top level definitions.
+         """
+         result = self.check("""# First comment line.
+ # Second line of comment.
+@@ -177,8 +177,8 @@
+ 
+     def test_method_more_blank_lines(self):
+         """
+-        It will trigger an error when more than 1 blank line is found before
+-        method definition
++        It will trigger an error when more than 1 blank line is found
++        before method definition
+         """
+         result = self.check("""# First comment line.
+ 
+@@ -209,8 +209,8 @@
+ 
+     def test_initial_lines_more_blank(self):
+         """
+-        It will trigger an error for more than 2 blank lines before the first
+-        line of actual code.
++        It will trigger an error for more than 2 blank lines before the
++        first line of actual code.
+         """
+         result = self.check("""
+ 
+@@ -222,8 +222,8 @@
+ 
+     def test_blank_line_between_decorator(self):
+         """
+-        It will trigger an error when the decorator is followed by a blank
+-        line.
++        It will trigger an error when the decorator is followed by a
++        blank line.
+         """
+         result = self.check("""# First line.
+ 
+@@ -245,8 +245,8 @@
+ 
+     def test_blank_line_decorator(self):
+         """
+-        It will accept the decorators which are adjacent to the function and
+-        method definition.
++        It will accept the decorators which are adjacent to the function
++        and method definition.
+         """
+         result = self.check("""# First line.
+ 
+@@ -340,7 +340,8 @@
+     def test_method_nested_fewer_follow_lines(self):
+         """
+         It will trigger an error when less than 1 blank line is
+-        found between a method and previous definitions, even when nested.
++        found between a method and previous definitions, even when
++        nested.
+         """
+         result = self.check("""
+ def a():
+@@ -374,7 +375,8 @@
+     def test_method_nested_ok(self):
+         """
+         Will not trigger an error when 1 blank line is found
+-        found between a method and previous definitions, even when nested.
++        found between a method and previous definitions, even when
++        nested.
+         """
+         result = self.check("""
+ def a():
+@@ -394,8 +396,8 @@
+ 
+ class TestBlankLinesTwisted(BlankLinesTestCase):
+     """
+-    Tests for blank_lines with 3 blank lines for top level and 2 blank line
+-    for methods as used by the Twisted coding style.
++    Tests for blank_lines with 3 blank lines for top level and 2 blank
++    line for methods as used by the Twisted coding style.
+     """
+ 
+     def setUp(self):
+@@ -408,8 +410,8 @@
+ 
+     def test_initial_lines_one_blanks(self):
+         """
+-        It will accept less than 3 blank lines before the first line of actual
+-        code.
++        It will accept less than 3 blank lines before the first line of
++        actual code.
+         """
+         result = self.check("""
+ 
+@@ -422,8 +424,8 @@
+ 
+     def test_initial_lines_tree_blanks(self):
+         """
+-        It will accept 3 blank lines before the first line of actual code,
+-        as normal.
++        It will accept 3 blank lines before the first line of actual
++        code, as normal.
+         """
+         result = self.check("""
+ 
+@@ -436,8 +438,8 @@
+ 
+     def test_top_level_fewer_blank_lines(self):
+         """
+-        It will trigger an error when less 2 blank lines are found before top
+-        level definitions.
++        It will trigger an error when less 2 blank lines are found
++        before top level definitions.
+         """
+         result = self.check("""# First comment line.
+ # Second line of comment.
+@@ -476,8 +478,8 @@
+ 
+     def test_top_level_more_blank_lines(self):
+         """
+-        It will trigger an error when more 2 blank lines are found before top
+-        level definitions.
++        It will trigger an error when more 2 blank lines are found
++        before top level definitions.
+         """
+         result = self.check("""# First comment line.
+ # Second line of comment.
+diff -r -u -x .git pc/pycodestyle/testsuite/utf-8.py pycodestyle/testsuite/utf-8.py
+--- pc/pycodestyle/testsuite/utf-8.py	2018-12-03 20:41:32.000000000 -0800
++++ pycodestyle/testsuite/utf-8.py	2018-12-03 11:35:36.000000000 -0800
+@@ -2,34 +2,34 @@
+ 
+ # Some random text with multi-byte characters (utf-8 encoded)
+ #
+-# Εδώ μάτσο κειμένων τη, τρόπο πιθανό διευθυντές ώρα μη. Νέων απλό παράγει ροή
+-# κι, το επί δεδομένη καθορίζουν. Πάντως ζητήσεις περιβάλλοντος ένα με, τη
+-# ξέχασε αρπάζεις φαινόμενο όλη. Τρέξει εσφαλμένη χρησιμοποίησέ νέα τι. Θα όρο
++# Εδώ μάτσο κειμένων τη, τρόπο πιθανό διευθυντές ώρα μη. Νέων απλό π ροή
++# κι, το επί δεδομένη καθορίζουν. Πάντως ζητήσεις περιβάλλοντος ένα με,
++# ξέχασε αρπάζεις φαινόμενο όλη. Τρέξει εσφαλμένη χρησιμοποίησέ νέα τι.
+ # πετάνε φακέλους, άρα με διακοπής λαμβάνουν εφαμοργής. Λες κι μειώσει
+ # καθυστερεί.
+ 
+ # 79 narrow chars
+-# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 [79]
++# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3[79]
+ 
+ # 78 narrow chars (Na) + 1 wide char (W)
+-# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8情
++# 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 情
+ 
+ # 3 narrow chars (Na) + 40 wide chars (W)
+ # 情 情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情
+ 
+-# 3 narrow chars (Na) + 76 wide chars (W)
+-# 情 情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情
++# 3 narrow chars (Na) + 69 wide chars (W)
++# 情 情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情
+ 
+ #
+-#: E501
++#: E501 W505
+ # 80 narrow chars (Na)
+ # 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6  [80]
+ #
+-#: E501
++#: E501 W505
+ # 78 narrow chars (Na) + 2 wide char (W)
+ # 01 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8情情
+ #
+-#: E501
++#: E501 W505
+ # 3 narrow chars (Na) + 77 wide chars (W)
+ # 情 情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情
+ #
