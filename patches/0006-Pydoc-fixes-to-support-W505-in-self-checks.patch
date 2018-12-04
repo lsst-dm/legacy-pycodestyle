@@ -8,8 +8,7 @@ Subject: [PATCH 6/6] Pydoc fixes to support W505 in self-checks
  setup.cfg                     |   1 +
  testsuite/support.py          |   8 +-
  testsuite/test_blank_lines.py |  70 +++++-----
- tox.ini                       |   4 +-
- 5 files changed, 171 insertions(+), 150 deletions(-)
+ 4 files changed, 171 insertions(+), 150 deletions(-)
 
 diff --git a/pycodestyle.py b/pycodestyle.py
 index bedd5a5..e738f22 100755
@@ -836,22 +835,6 @@ index 870403a..2b37ad1 100644
          """
          result = self.check("""# First comment line.
  # Second line of comment.
-diff --git a/tox.ini b/tox.ini
-index 41ba178..98df04f 100644
---- a/tox.ini
-+++ b/tox.ini
-@@ -11,9 +11,9 @@ skip_missing_interpreters = True
- [testenv]
- commands =
- 	{envpython} setup.py install
--	{envpython} pycodestyle.py --testsuite testsuite
-+	{envpython} pycodestyle.py --max-doc-length=72 --testsuite testsuite
- 	{envpython} pycodestyle.py --statistics pycodestyle.py
--	{envpython} pycodestyle.py --doctest
-+	{envpython} pycodestyle.py --max-doc-length=72 --doctest
- 	{envpython} setup.py test
- 
- [testenv:flake8]
 -- 
 2.17.2 (Apple Git-113)
 

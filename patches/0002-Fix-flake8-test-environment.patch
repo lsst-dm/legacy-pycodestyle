@@ -5,8 +5,7 @@ Subject: [PATCH 2/6] Fix flake8 test environment
 
 ---
  pycodestyle.py | 6 +++---
- tox.ini        | 3 ++-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/pycodestyle.py b/pycodestyle.py
 index 1c8c5d2..b69ce33 100755
@@ -25,20 +24,6 @@ index 1c8c5d2..b69ce33 100755
  
  
  def normalize_paths(value, parent=os.curdir):
-diff --git a/tox.ini b/tox.ini
-index 797bbfa..41ba178 100644
---- a/tox.ini
-+++ b/tox.ini
-@@ -5,7 +5,8 @@
- 
- [tox]
- envlist = py26, py27, py32, py33, py34, py35, py36, pypy, pypy3, jython
--skip_missing_interpreters=True
-+skipsdist = True
-+skip_missing_interpreters = True
- 
- [testenv]
- commands =
 -- 
 2.17.2 (Apple Git-113)
 
